@@ -1,0 +1,7 @@
+DB_LOCAL_URI=mongodb+srv://enotes:abc12345678@cluster0.vskb7.mongodb.net/enotes?retryWrites=true&w=majority
+PORT=8000
+WS_PORT=3000
+SOCKET_PORT=5002
+APPS_SUBDOMAIN=http://localhost:5000/apps/
+JWT_SECRET=enotesSikretongMalupit
+ENV=DEVELOPMENT
