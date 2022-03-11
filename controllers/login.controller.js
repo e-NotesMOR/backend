@@ -30,6 +30,6 @@ exports.loginUser = async(req, res) => {
     } catch (err) {
         throw err;
     }
-    if (user) return res.json({ userId: user._id  });
+    if (user) return res.json({ userId: user._id , userName: user.userName });
     return res.json({ error: 'user not found' });
 }
