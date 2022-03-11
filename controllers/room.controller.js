@@ -94,15 +94,46 @@ exports.importNewRoom = async(req, res) => {
 
 //Join Room Invitation Code
 exports.joinRoom = async(req, res) => {
-    let room;
+    let room, childIds = [];
     let { code, userId } = req.body;
+    let codeRoom;
     try {
-        room = await Room.updateOne({ code }, {
-            $addToSet: { members: userId }
-        })
+        room = await Room.findOne({ code });
+        if (room.childrenOf === null) { // Parent room
+            codeRoom = await Room.updateOne({ code }, { //UPDATE PARENT MEMBERS
+                $addToSet: { members: userId }
+            });
+
+            childIds = JSON.parse(JSON.stringify(room.children));
+            childIds.map(async(childId) => {
+                await Room.updateOne({ _id: childId }, { //UPDATE CHILDROOM MEMBERS
+                    $addToSet: { members: userId }
+                })
+            });
+        } else { //Room is a child
+            codeRoom = await Room.updateOne({ code }, { //UPDATE CHILD MEMBERS
+                $addToSet: { members: userId }
+            });
+            await Room.updateOne({ _id: room.childrenOf }, { //UPDATE PARENT MEMBERS
+                $addToSet: { members: userId }
+            })
+        }
     } catch (err) {
         throw err;
     }
-    if (room.modifiedCount) return res.json({ room });
+
+    if (codeRoom.modifiedCount) return res.json({ room });
     else return res.json({ error: 'cannot join room' });
+}
+
+exports.deletePrivateRoom = async(req, res) => {
+    let room;
+    let { roomId } = req.body;
+    try {
+        room = await Room.deleteOne({ _id: roomId, $where: 'this.members.length<2' });
+    } catch (err) {
+        throw err;
+    }
+    if (room.deletedCount) return res.json({ room });
+    else return res.json({ error: 'cannot delete room' });
 }

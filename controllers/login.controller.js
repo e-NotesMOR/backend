@@ -23,13 +23,13 @@ exports.getAllUsers = async(req, res) => {
 }
 
 exports.loginUser = async(req, res) => {
-    let { email } = req.body;
+    let { email, password } = req.body;
     let user;
     try {
-        user = await User.findOne({ email });
+        user = await User.findOne({ email, password });
     } catch (err) {
         throw err;
     }
-    if (user) return res.json({ user });
+    if (user) return res.json({ userId: user._id  });
     return res.json({ error: 'user not found' });
 }

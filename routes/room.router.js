@@ -18,7 +18,8 @@ const upload = multer({ storage: fileStorageEngine });
 router.route('/')
     .get(roomController.getRoomDetails)
     .post(upload.single('document'), roomController.addNewRoom)
-    .put(roomController.joinRoom);
+    .put(roomController.joinRoom)
+    .delete(roomController.deletePrivateRoom);
 
 router.route('/import')
     .post(upload.single('document'), roomController.importNewRoom);
