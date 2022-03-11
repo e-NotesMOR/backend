@@ -22,7 +22,10 @@ router.route('/')
     .delete(roomController.deletePrivateRoom);
 
 router.route('/import')
-    .post(upload.single('document'), roomController.importNewRoom);
+    .post(upload.single('document'), roomController.addNewFile);
+
+router.route('/leave')
+    .post(roomController.leaveRoom)
 
 
 

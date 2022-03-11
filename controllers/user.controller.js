@@ -54,13 +54,13 @@ exports.updateRoomDetails = async(req, res) => {
 exports.updateRoomActivity = async(req, res) => {
     let { roomId, title, description } = req.body;
     let room;
+    var objForUpdate = {};
 
+    if (req.body.title !== '') objForUpdate.title = req.body.title;
+    if (req.body.description !== '') objForUpdate.description = req.body.description;
     try {
         room = await Room.updateOne({ _id: roomId }, {
-            $set: {
-                title,
-                description,
-            }
+            $set: objForUpdate
         });
     } catch (err) {
         throw err;
@@ -85,10 +85,12 @@ exports.deleteRoomFile = async(req, res) => {
 exports.addComment = async(req, res) => {
     let originalname, filename, path, userComment;
     let { roomId, comment, commenter } = req.body;
+    let dpath;
     if (req.file) {
         originalname = req.file.originalname;
         filename = req.file.filename;
         path = req.file.path;
+        dpath = path.slice(7, path.length)
     }
     try {
         if (req.file) {
@@ -98,10 +100,10 @@ exports.addComment = async(req, res) => {
                 file: {
                     originalname: originalname.split('.').slice(0, -1).join('.'),
                     filename,
-                    path
+                    path: dpath,
                 },
             });
-        } else {
+        } else if (comment !== 'null') {
             userComment = await Comment.create({
                 comment,
                 commenter,
@@ -110,6 +112,7 @@ exports.addComment = async(req, res) => {
     } catch (err) {
         throw err;
     }
+
     let toUserRoom;
     if (userComment) {
         try {
@@ -126,6 +129,7 @@ exports.addComment = async(req, res) => {
 exports.deleteComment = async(req, res) => {
     let { roomId, commentId } = req.body;
     let updateRoom, deleteComment;
+    console.log(roomId,commentId)
     try {
         updateRoom = await Room.updateOne({ _id: roomId }, { $pull: { comments: commentId } });
         deleteComment = await Comment.deleteOne({ _id: commentId });
